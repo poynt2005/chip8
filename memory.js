@@ -1,0 +1,64 @@
+function memory(inputBuffer){
+
+  /*
+    * inputBuffer : rom buffer (begging store at index 0x200)
+    * memory : 4KB
+    * stack : program resStack
+  */
+  this.inputBuffer = inputBuffer || false;
+  this.memory = new Uint8Array(4096);
+  this.stack = new Array();
+  this.init();
+}
+
+memory.prototype.init = function(){
+
+  // every line represent a digit or character
+  var fontSet = new Uint8Array([
+    0xF0, 0x90, 0x90, 0x90, 0xF0, //0
+    0x20, 0x60, 0x20, 0x20, 0x70, //1
+    0xF0, 0x10, 0xF0, 0x80, 0xF0, //2
+    0xF0, 0x10, 0xF0, 0x10, 0xF0, //3
+    0x90, 0x90, 0xF0, 0x10, 0x10, //4
+    0xF0, 0x80, 0xF0, 0x10, 0xF0, //5
+    0xF0, 0x80, 0xF0, 0x90, 0xF0, //6
+    0xF0, 0x10, 0x20, 0x40, 0x40, //7
+    0xF0, 0x90, 0xF0, 0x90, 0xF0, //8
+    0xF0, 0x90, 0xF0, 0x10, 0xF0, //9
+    0xF0, 0x90, 0xF0, 0x90, 0x90, //A
+    0xE0, 0x90, 0xE0, 0x90, 0xE0, //B
+    0xF0, 0x80, 0x80, 0x80, 0xF0, //C
+    0xE0, 0x90, 0x90, 0x90, 0xE0, //D
+    0xF0, 0x80, 0xF0, 0x80, 0xF0, //E
+    0xF0, 0x80, 0xF0, 0x80, 0x80  //F
+  ]);
+
+
+  //load digit/character to memory
+  for(let i = 0 ; i<fontSet.length ; i++)
+    this.memory[i] = fontSet[i];
+
+  //program start at index 0x200
+  if(this.inputBuffer){
+    var startIndex = 0x200;
+    for(let i = 0 ; i<this.inputBuffer.length ; i++)
+      this.memory[i + startIndex] = this.inputBuffer[i];
+  }
+
+}
+
+memory.prototype.printHex = function(){
+  var resMem=[];
+  for(let i of this.memory)
+    resMem.push(`0x${i.toString(16)}`);
+  console.log("memory");
+  console.log(resMem);
+
+  if(this.stack.length > 0){
+    var resStack = [];
+    for(let i of this.stack)
+      resStack.push(`0x${i.toString(16)}`);
+    console.log("stack");
+    console.log(resStack);
+  }
+}

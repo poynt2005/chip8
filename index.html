@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+
+<html style="height:100%;text-align:center;">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+		<title>Chip8 模擬器</title>
+	</head>
+	<body style="height:100%;">
+		<div>
+			<input type='file' id='fileinput'/>
+			<button id="startEmu">開始模擬</button>
+			<button id="stopEmu">停止模擬</button>
+		</div>
+		<div id="testG" style="position:relative;top:30%;">
+			<canvas id="canvas"></canvas>
+		</div>
+
+		
+		<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+		<script src="romLoad.js"></script>
+		<script src="register.js"></script>
+		<script src="memory.js"></script>
+		<script src="keyboard.js"></script>
+		<script src="createTwoDimensionArray.js"></script>
+		<script src="screen.js"></script>
+		<script src="cpu.js"></script>
+		<script src="chip8.js"></script>
+		<script src="main.js"></script>
+	</body>
+</html>
