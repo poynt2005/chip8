@@ -1,6 +1,6 @@
 $(document).ready(function(){
 
-	var chipEight;
+	window.chipEight = null;
 
 	$("#fileinput").change(async function(){
 		var rom = new readROM(document.getElementById("fileinput"));
@@ -8,6 +8,9 @@ $(document).ready(function(){
 		try{
 
 			const buffer = await rom.read();
+
+			if(window.chipEight)
+				window.chipEight = null;
 
 			chipEight = new chip8(buffer , document.getElementById("canvas"));
 			chipEight.init();

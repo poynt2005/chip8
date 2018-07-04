@@ -29,7 +29,11 @@ function chip8(romBin , screenNode , speed){
 }
 
 chip8.prototype.init = function(){
-  this.emulationInterval = false;
+
+  // check if there is a cpu cycle loop , stop it
+  if(this.emulationInterval){
+    this.stopEmulation();
+  }
 
   //load the game
   this.isMemoryLoad = true;
@@ -42,9 +46,9 @@ chip8.prototype.init = function(){
   var registerInstance = new register();
   var keyboardInstance = new keyboard();
   var screenInstance = new screen(this.screenNode);
-
+  var audioInstance = new createSound();
   // get cpu instance
-  var cpuInstance = new cpu(memoryInstance , registerInstance , keyboardInstance , screenInstance , this.speed);
+  var cpuInstance = new cpu(memoryInstance , registerInstance , keyboardInstance , screenInstance , audioInstance ,  this.speed);
 
   //save cpu object
   this.setCpu(cpuInstance);
@@ -55,6 +59,11 @@ chip8.prototype.startEmulation = function(frequency){
 
   //emulator frequency , default 60Hz
   frequency = frequency || 60;
+
+  if(this.emulationInterval){
+    // check if there is a cpu cycle loop , stop it
+    this.stopEmulation();
+  }
 
   if(!this.isMemoryLoad){
     console.log("chip8 hasn't initilized");
@@ -83,6 +92,7 @@ chip8.prototype.stopEmulation = function(){
     else {
       console.log("Emulator now stoping...");
       window.clearInterval(this.emulationInterval);
+      this.emulationInterval = false;
       return;
     }
   }

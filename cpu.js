@@ -1,10 +1,11 @@
-function cpu(Mem , Reg , keyBoard , Scr , ipc){
+function cpu(Mem , Reg , keyBoard , Scr , audio ,ipc){
 
   /*
     * Memory instance : chip8's Memory
     * Register instance : chip8's Register
     * keyboard instance : chip8's keyboard
     * screen instance : chip8's graphic system
+    * audio instance : chip8's audio
     * instructionsPerCycle : Instructions Per cycle
     * pause : pause the cpu cycle
   */
@@ -13,6 +14,7 @@ function cpu(Mem , Reg , keyBoard , Scr , ipc){
   this.register = Reg;
   this.keyboard = keyBoard;
   this.screen = Scr;
+  this.audio = audio;
   this.instructionsPerCycle = ipc;
 
   this.pause = false;
@@ -36,6 +38,13 @@ cpu.prototype.cycle = function(){
     if(this.register.soundTimer > 0x00)
     	this.register.soundTimer = this.register.soundTimer - 0x1;
   }
+
+
+  //if soundtimer > 0 , play sound
+    if(this.register.soundTimer > 0)
+      this.audio.play();
+    else
+      this.audio.stop();
 
   //draw in canvas
   this.screen.draw();
@@ -542,7 +551,7 @@ cpu.prototype.execute = function(opts){
     * skip to next instruction
     */
     "EX9E" : function(){
-      if(_this.keyboard.getKeyStore()[_this.register.V[opts.Vx]])
+      if(_this.keyboard.isPressed([_this.register.V[opts.Vx]]))
         _this.register.pc += 0x0002;
       return;
     },
@@ -555,7 +564,7 @@ cpu.prototype.execute = function(opts){
       * if key(V[x]) ain't pressed , then sjip to next instruction
     */
     "EXA1" : function(){
-      if(!_this.keyboard.getKeyStore()[_this.register.V[opts.Vx]])
+      if(!_this.keyboard.isPressed([_this.register.V[opts.Vx]]))
         _this.register.pc += 0x0002;
       return;
     },
@@ -576,21 +585,19 @@ cpu.prototype.execute = function(opts){
       * A key press is awaited, and then stored in VX. (Blocking Operation. All instruction halted until next key event)
     */
     "FX0A" : function(){
+
+      //halt cpu
       _this.pause = true;
 
-      //infinite loop (stop cpu cycle)
-      while(true){
-
-        //when a key is pressed
-        if(window.aKeyPressed){
-          _this.pause = false;
-
-          //get what key is store in the array and set to V[x]
-          for(let i = 0 ; i < 16 ; i++)
-            if(_this.keyboard.getKeyStore()[i])
-              _this.register.V[opts.Vx] = i;
-          return;
-        }
+      /*
+        * Override the waitForKeyPress method
+        * Once the keyinput method is called , keyboard.processPressKey method will process the keycode
+          and store it into the keyboard.keystore
+          and V[x] will store this key , and cpu will continue
+      */
+      _this.keyboard.waitForKeyPress = function(inputKey){
+        _this.register.V[opts.Vx] = inputKey;
+        _this.pause = false;
       }
       return;
     },
